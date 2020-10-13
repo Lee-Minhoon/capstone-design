@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/item01"
+        android:icon="@drawable/work"
+        android:enabled="true"
+        android:title="Arrangement"/>
+
+    <item
+        android:id="@+id/item02"
+        android:icon="@drawable/list"
+        android:enabled="true"
+        android:title="Storage"/>
+
+    <item
+        android:id="@+id/item03"
+        android:icon="@drawable/info"
+        android:enabled="true"
+        android:title="Information"/>
+
+</menu>

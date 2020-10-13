@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    tools:context=".CreateActivity">
+
+    <LinearLayout
+        android:layout_width="300dp"
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+        android:gravity="center">
+        <TextView
+            android:id="@+id/text_bpm"
+            android:layout_width="130dp"
+            android:layout_height="50dp"
+            android:gravity="center_vertical"
+            android:text="속도 선택" />
+        <Spinner
+            android:id="@+id/spinner_bpm"
+            android:layout_width="130dp"
+            android:layout_height="50dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="300dp"
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+        android:gravity="center">
+        <TextView
+            android:id="@+id/text_instrument"
+            android:layout_width="130dp"
+            android:layout_height="50dp"
+            android:gravity="center_vertical"
+            android:text="악기 선택" />
+        <Spinner
+            android:id="@+id/spinner_instrument"
+            android:layout_width="130dp"
+            android:layout_height="50dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="300dp"
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+        android:gravity="center">
+        <TextView
+            android:id="@+id/text_beat"
+            android:layout_width="130dp"
+            android:layout_height="50dp"
+            android:gravity="center_vertical"
+            android:text="비트 선택" />
+        <Spinner
+            android:id="@+id/spinner_beat"
+            android:layout_width="130dp"
+            android:layout_height="50dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="300dp"
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+        android:gravity="center">
+        <TextView
+            android:id="@+id/text_onoff"
+            android:layout_width="130dp"
+            android:layout_height="50dp"
+            android:gravity="center_vertical"
+            android:text="멜로디 변경" />
+        <RadioGroup
+            android:id="@+id/group_onoff"
+            android:layout_width="130dp"
+            android:layout_height="50dp"
+            android:orientation="horizontal"
+            android:gravity="center">
+            <RadioButton
+                android:id="@+id/radio_on"
+                android:text="on"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <RadioButton
+                android:id="@+id/radio_off"
+                android:text="off"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </RadioGroup>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="300dp"
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+        android:gravity="center">
+        <Button
+            android:id="@+id/button01"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="편곡" />
+
+        <Button
+            android:id="@+id/button02"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="원곡" />
+    </LinearLayout>
+
+</LinearLayout>

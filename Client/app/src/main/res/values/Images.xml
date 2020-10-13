@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="sheetMusics">
+        <item>@drawable/nmusic0</item>
+        <item>@drawable/nmusic1</item>
+        <item>@drawable/nmusic2</item>
+        <item>@drawable/nmusic3</item>
+        <item>@drawable/nmusic4</item>
+        <item>@drawable/nmusic5</item>
+        <item>@drawable/nmusic6</item>
+        <item>@drawable/nmusic7</item>
+        <item>@drawable/nmusic8</item>
+        <item>@drawable/nmusic9</item>
+        <item>@drawable/nmusic10</item>
+        <item>@drawable/nmusic11</item>
+        <item>@drawable/nmusic12</item>
+        <item>@drawable/nmusic13</item>
+        <item>@drawable/nmusic14</item>
+        <item>@drawable/nmusic15</item>
+        <item>@drawable/nmusic16</item>
+        <item>@drawable/nmusic17</item>
+        <item>@drawable/nmusic18</item>
+        <item>@drawable/nmusic19</item>
+        <item>@drawable/nmusic20</item>
+        <item>@drawable/nmusic21</item>
+        <item>@drawable/nmusic22</item>
+        <item>@drawable/nmusic23</item>
+        <item>@drawable/nmusic24</item>
+        <item>@drawable/nmusic25</item>
+        <item>@drawable/nmusic99</item>
+    </array>
+</resources>
