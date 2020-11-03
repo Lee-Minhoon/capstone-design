@@ -285,7 +285,6 @@ def binder(c, addr):
             except:
                 print("Send Error")
 
-
 # Socket Set & Start
 s = socket.socket(socket.AF_INET)
 s.bind((host, port))
