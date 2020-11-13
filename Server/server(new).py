@@ -63,6 +63,49 @@ tempKeys5 = [
 
 song = [['c4', 4], ['c4', 4], ['c4', 4], ['d4', 8], ['e4', 4], ['e4', 4], ['d4', 8], ['e4', 4], ['f4', 8], ['g4', 2], ['c4', 8], ['c4', 8], ['c4', 8], ['g4', 8], ['g4', 8], ['g4', 8], ['e4', 8], ['e4', 8], ['e4', 8], ['c4', 8], ['c4', 8], ['c4', 8], ['g4', 4], ['f4', 8], ['e4', 4], ['d4', 8], ['c4', 2]]
 
+def node_extraction(notes):
+    # 4분의 4박자
+    beat1 = 4
+    beat2 = 4
+    # 코드
+    chord = ['c', 'f', 'c', 'g7', 'c', 'f', 'c', 'c', 'f', 'c', 'f', 'g7', 'c', 'f', 'c', 'c', 'c', 'f', 'c', 'g7', 'c', 'f', 'c', 'c']
+    #, ''
+    # 음계
+    scale = ['c', 'c#', 'd', 'd#', 'e', 'f', 'f#', 'g', 'g#', 'a', 'a#', 'b']
+    chord_scale = ['c', 'cm', 'c7', 'df', 'dfm', 'df7', 'd', 'dm', 'd7', 'ef', 'efm', 'ef7',
+                   'e', 'em', 'e7', 'f', 'fm', 'f7', 'gf', 'gfm', 'gf7', 'g', 'gm', 'g7',
+                   'af', 'afm', 'af7', 'a', 'am', 'a7', 'bf', 'bfm', 'bf7', 'b', 'bm', 'b7']
+    # 마디별 출력될 노드
+    node = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    value = 0
+    for i in notes:
+        # 마디안의 음 길이 계산
+        if (i[1] > 0):
+            value = value + (beat2 / i[1])
+        else:
+            value = value + (beat2 / abs(i[1])) + (beat2 / (abs(i[1]) * 2))
+        k = 0
+        for j in scale:
+            # 스케일과 비교해서 같을 경우 해당 노드의 자리를 1증가
+            if (i[0][:-1] == j):
+                node[k] = node[k] + 1
+            k = k + 1
+        if (value == beat1):
+            print(node)
+            node = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            value = 0
+    print("========================================")
+    chord_node = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    for i in chord:
+        k = 0
+        for j in chord_scale:
+            if (i == j):
+                chord_node[k] = chord_node[k] + 1
+                print(chord_node)
+                chord_node = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                break
+            k = k + 1
+
 def make_midi(midi_path, notes, bpm, instrument, beat):
     note_names = 'c c# d d# e f f# g g# a  a# b'.split()
 
@@ -250,7 +293,8 @@ def binder(c, addr):
             notes.append(keys[index][0])
             beats.append(lst[i][sub + 1:])
             song.append([notes[i - 1], int(beats[i - 1])])
-
+        node_extraction(notes=song)
+"""
         # Make Wav File
         print(song)
         randomNum = randint(10000000, 99999999)
@@ -279,12 +323,12 @@ def binder(c, addr):
                 while data2:
                     c.send(data2)
                     data2 = f.read(1024)
-                    print("Send...")
+                    # print("Send...")
                 print("Send Success")
                 c.close()
             except:
                 print("Send Error")
-
+"""
 # Socket Set & Start
 s = socket.socket(socket.AF_INET)
 s.bind((host, port))
