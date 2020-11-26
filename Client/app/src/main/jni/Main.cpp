@@ -54,10 +54,29 @@ JNIEXPORT void JNICALL Java_com_example_practiceopencv_SheetFragment_preprocess2
     cvtColor(sheetMusic, sheetMusic, COLOR_GRAY2RGB);
     for (int i = 0; i < contours.size(); i++) {
         Rect rect = boundingRect(contours[i]);
-        if(rect.width >= cols * 0.7) {
+        if(rect.width >= cols * 0.7 && rect.width != cols) {
             rectangle(sheetMusic, rect, Scalar(255, 0, 0), 3);
         }
     }
+
+//    pixelData = sheetMusic.data;
+//    for (int y = 0; y < rows; y++) {
+//        for (int x = 0; x < cols; x++) {
+//            uchar rPixel = pixelData[y * cols * 3 + x * 3];
+//            uchar gPixel = pixelData[y * cols * 3 + x * 3 + 1];
+//            uchar bPixel = pixelData[y * cols * 3 + x * 3 + 2];
+//            if (rPixel < 30 && gPixel < 30 && bPixel < 30) {
+//                for (int i = 0; i < 3; i++) {
+//                    pixelData[y * cols * 3 + x * 3 + i] = 255;
+//                }
+//            }
+//            else if (rPixel > 220 && gPixel > 220 && bPixel > 220) {
+//                for (int i = 0; i < 3; i++) {
+//                    pixelData[y * cols * 3 + x * 3 + i] = 0;
+//                }
+//            }
+//        }
+//    }
 
     // Clear Out of Staffs Area
     pixelData = sheetMusic.data;

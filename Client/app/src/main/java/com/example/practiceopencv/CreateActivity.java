@@ -120,7 +120,7 @@ public class CreateActivity extends AppCompatActivity {
             public void onClick(View v) {
                 ProgressDialog progressDialog = new ProgressDialog(CreateActivity.this);
                 progressDialog.setMessage("Creating...");
-                // progressDialog.setCancelable(false);
+                progressDialog.setCancelable(false);
                 progressDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Horizontal);
                 progressDialog.show();
                 Thread thread = new socketThread(CreateActivity.this, progressDialog, key, notesInfo, bpmValue, instrumentValue, beatValue, melody, 0);
@@ -134,7 +134,7 @@ public class CreateActivity extends AppCompatActivity {
             public void onClick(View v) {
                 ProgressDialog progressDialog = new ProgressDialog(CreateActivity.this);
                 progressDialog.setMessage("Creating...");
-                // progressDialog.setCancelable(false);
+                progressDialog.setCancelable(false);
                 progressDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Horizontal);
                 progressDialog.show();
                 Thread thread = new socketThread(CreateActivity.this, progressDialog, key, notesInfo, bpmValue, instrumentValue, beatValue, melody, 1);

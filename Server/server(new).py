@@ -293,8 +293,8 @@ def binder(c, addr):
             notes.append(keys[index][0])
             beats.append(lst[i][sub + 1:])
             song.append([notes[i - 1], int(beats[i - 1])])
-        node_extraction(notes=song)
-"""
+        # node_extraction(notes=song)
+
         # Make Wav File
         print(song)
         randomNum = randint(10000000, 99999999)
@@ -328,7 +328,7 @@ def binder(c, addr):
                 c.close()
             except:
                 print("Send Error")
-"""
+
 # Socket Set & Start
 s = socket.socket(socket.AF_INET)
 s.bind((host, port))

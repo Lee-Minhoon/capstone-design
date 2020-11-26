@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <array name="sheetMusics">
+        <item>@drawable/twinkle</item>
         <item>@drawable/nmusic0</item>
         <item>@drawable/nmusic1</item>
         <item>@drawable/nmusic2</item>
