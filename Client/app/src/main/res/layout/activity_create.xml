@@ -98,13 +98,13 @@
             android:id="@+id/button01"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="편곡" />
+            android:text="원곡" />
 
         <Button
             android:id="@+id/button02"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="원곡" />
+            android:text="편곡" />
     </LinearLayout>
 
 </LinearLayout>

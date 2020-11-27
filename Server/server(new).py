@@ -323,7 +323,7 @@ def binder(c, addr):
                 while data2:
                     c.send(data2)
                     data2 = f.read(1024)
-                    # print("Send...")
+                    print("Send...")
                 print("Send Success")
                 c.close()
             except:

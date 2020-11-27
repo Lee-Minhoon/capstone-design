@@ -123,7 +123,7 @@ public class CreateActivity extends AppCompatActivity {
                 progressDialog.setCancelable(false);
                 progressDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Horizontal);
                 progressDialog.show();
-                Thread thread = new socketThread(CreateActivity.this, progressDialog, key, notesInfo, bpmValue, instrumentValue, beatValue, melody, 0);
+                Thread thread = new socketThread(CreateActivity.this, progressDialog, key, notesInfo, bpmValue, instrumentValue, beatValue, melody, 1);
                 thread.start();
             }
         });
@@ -137,7 +137,7 @@ public class CreateActivity extends AppCompatActivity {
                 progressDialog.setCancelable(false);
                 progressDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Horizontal);
                 progressDialog.show();
-                Thread thread = new socketThread(CreateActivity.this, progressDialog, key, notesInfo, bpmValue, instrumentValue, beatValue, melody, 1);
+                Thread thread = new socketThread(CreateActivity.this, progressDialog, key, notesInfo, bpmValue, instrumentValue, beatValue, melody, 0);
                 thread.start();
             }
         });
