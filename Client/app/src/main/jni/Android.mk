@@ -2,7 +2,7 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
 #opencv library
-OPENCVROOT:= E:\(4-1)CapstoneDesign\Client\OpenCV
+OPENCVROOT:= E:\capstone-design\client\OpenCV
 
 OPENCV_CAMERA_MODULES:=on
 OPENCV_INSTALL_MODULES:=on
