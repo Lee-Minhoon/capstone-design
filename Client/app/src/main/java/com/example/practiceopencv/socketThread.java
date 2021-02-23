@@ -25,8 +25,8 @@ public class socketThread extends Thread {
     private int melody;
     private int value;
     private Socket socket;
-    // private String ip = "192.168.219.104";
-    private String ip = "10.0.2.2";
+    private String ip = "192.168.219.103";
+    // private String ip = "10.0.2.2";
     private int port = 3000;
     private DataInputStream dis;
     private DataOutputStream dos;
