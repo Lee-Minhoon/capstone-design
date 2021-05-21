@@ -113,67 +113,67 @@ public class SheetFragment extends Fragment {
         });
 
         // Music Arrangement
-        ImageButton button03 = view.findViewById(R.id.button03);
-        button03.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ProgressDialog progressDialog = new ProgressDialog(getContext());
-                progressDialog.setMessage("Creating...");
-                progressDialog.setCancelable(false);
-                progressDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Horizontal);
-                progressDialog.show();
-                preprocess1(matImage.getNativeObjAddr());
-                preprocess2(matImage.getNativeObjAddr());
-                staffsInfo = preprocess3(matImage.getNativeObjAddr());
-                staffsInfo = preprocess4(matImage.getNativeObjAddr(), staffsInfo);
-                notesInfo = process(matImage.getNativeObjAddr(), staffsInfo);
-                showImage(imageView, matImage);
-                int length = notesInfo.length;
-                int[] notes = new int[length];
-                int[] beats = new int[length];
-                for (int i = 0; i < length; i++) {
-                    notes[i] = notesInfo[i][0];
-                    beats[i] = notesInfo[i][1];
-                }
-                progressDialog.dismiss();
-                Intent intent = new Intent(getActivity(), CreateActivity.class);
-                intent.putExtra("key", key);
-                intent.putExtra("notes", notes);
-                intent.putExtra("beats", beats);
-                startActivity(intent);
-            }
-        });
-
 //        ImageButton button03 = view.findViewById(R.id.button03);
 //        button03.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View v) {
-//                if(temp == 0){
-//                    preprocess1(matImage.getNativeObjAddr());
-//                    showImage(imageView, matImage);
+//                ProgressDialog progressDialog = new ProgressDialog(getContext());
+//                progressDialog.setMessage("Creating...");
+//                progressDialog.setCancelable(false);
+//                progressDialog.setProgressStyle(android.R.style.Widget_ProgressBar_Horizontal);
+//                progressDialog.show();
+//                preprocess1(matImage.getNativeObjAddr());
+//                preprocess2(matImage.getNativeObjAddr());
+//                staffsInfo = preprocess3(matImage.getNativeObjAddr());
+//                staffsInfo = preprocess4(matImage.getNativeObjAddr(), staffsInfo);
+//                notesInfo = process(matImage.getNativeObjAddr(), staffsInfo);
+//                showImage(imageView, matImage);
+//                int length = notesInfo.length;
+//                int[] notes = new int[length];
+//                int[] beats = new int[length];
+//                for (int i = 0; i < length; i++) {
+//                    notes[i] = notesInfo[i][0];
+//                    beats[i] = notesInfo[i][1];
 //                }
-//                else if(temp == 1){
-//                    preprocess2(matImage.getNativeObjAddr());
-//                    showImage(imageView, matImage);
-//                }else if(temp == 2){
-//                    staffsInfo = preprocess3(matImage.getNativeObjAddr());
-//                    showImage(imageView, matImage);
-//                }else if(temp == 3){
-//                    staffsInfo = preprocess4(matImage.getNativeObjAddr(), staffsInfo);
-//                    showImage(imageView, matImage);
-//                }else if(temp == 4){
-//                    notesInfo = process(matImage.getNativeObjAddr(), staffsInfo);
-//                    showImage(imageView, matImage);
-//                }else{
-//                    bitmapImage = BitmapFactory.decodeResource(getResources(), sheetMusics.getResourceId(arrayIndex, -1));
-//                    matImage = new Mat(bitmapImage.getHeight(), bitmapImage.getWidth(), CvType.CV_8UC3, new Scalar(255, 255, 255));
-//                    Utils.bitmapToMat(bitmapImage, matImage);
-//                    showImage(imageView, matImage);
-//                    temp = -1;
-//                }
-//                temp++;
+//                progressDialog.dismiss();
+//                Intent intent = new Intent(getActivity(), CreateActivity.class);
+//                intent.putExtra("key", key);
+//                intent.putExtra("notes", notes);
+//                intent.putExtra("beats", beats);
+//                startActivity(intent);
 //            }
 //        });
+
+        ImageButton button03 = view.findViewById(R.id.button03);
+        button03.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(temp == 0){
+                    preprocess1(matImage.getNativeObjAddr());
+                    showImage(imageView, matImage);
+                }
+                else if(temp == 1){
+                    preprocess2(matImage.getNativeObjAddr());
+                    showImage(imageView, matImage);
+                }else if(temp == 2){
+                    staffsInfo = preprocess3(matImage.getNativeObjAddr());
+                    showImage(imageView, matImage);
+                }else if(temp == 3){
+                    staffsInfo = preprocess4(matImage.getNativeObjAddr(), staffsInfo);
+                    showImage(imageView, matImage);
+                }else if(temp == 4){
+                    notesInfo = process(matImage.getNativeObjAddr(), staffsInfo);
+                    showImage(imageView, matImage);
+                }else{
+                    bitmapImage = BitmapFactory.decodeResource(getResources(), sheetMusics.getResourceId(arrayIndex, -1));
+                    matImage = new Mat(bitmapImage.getHeight(), bitmapImage.getWidth(), CvType.CV_8UC3, new Scalar(255, 255, 255));
+                    Utils.bitmapToMat(bitmapImage, matImage);
+                    showImage(imageView, matImage);
+                    temp = -1;
+                }
+                temp++;
+            }
+        });
 
         return view;
     }
