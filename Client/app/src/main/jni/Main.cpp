@@ -1,5 +1,5 @@
 // ============================================================================================
-// Last Updated 2020. 06. 08 By Team Guru
+// Last Updated 2021. 05. 25 By Team Guru
 // ============================================================================================
 #include "com_example_practiceopencv_CreateFragment.h"
 #include "com_example_practiceopencv_MainActivity.h"
@@ -10,48 +10,50 @@
 extern "C" {
 
 // ============================================================================================
-// preprocess1 - Convert Three Channel Image to Binary Image & Invert Color
+// 전처리 과정 1 - 악보 영상 그레이스케일 및 이진화 진행
 // ============================================================================================
 JNIEXPORT void JNICALL Java_com_example_practiceopencv_SheetFragment_preprocess1(
         JNIEnv *env,
         jobject thiz,
         jlong sheetMusicAddr) {
 
-    // Create Variable LOGTAG
+    // 로그 태그 및 악보 영상 레퍼런스 변수 생성
     const char* LOGTAG = "preprocess1";
-
-    // Create Reference Variable Sheet Music
     Mat &sheetMusic = *(Mat *) sheetMusicAddr;
 
-    // Grayscale & Thresholding
+    // 그레이스케일 (RGB → GRAY)
     cvtColor(sheetMusic, sheetMusic, COLOR_RGB2GRAY);
+
+    // 이진화 (흑백 거꾸로, OTSU 알고리즘 사용)
     threshold(sheetMusic, sheetMusic, 127, 255, THRESH_BINARY_INV | THRESH_OTSU);
 
+    // 로그
     LOGI("Function End :: %s", LOGTAG);
 }
 
 // ============================================================================================
-// preprocess2 - Find the Staff Area and Clear other areas
+// 전처리 과정 2 - 오선 영역 도출 및 그 외 영역 제거
 // ============================================================================================
 JNIEXPORT void JNICALL Java_com_example_practiceopencv_SheetFragment_preprocess2(
         JNIEnv *env,
         jobject thiz,
         jlong sheetMusicAddr) {
 
-    // Create Variable LOGTAG
+    // 로그 태그 및 악보 영상 레퍼런스 변수 생성
     const char* LOGTAG = "preprocess2";
-
-    // Create Reference Variable Sheet Music
     Mat &sheetMusic = *(Mat *) sheetMusicAddr;
 
-    // Create Variable Sheet Music Data
+    // 악보 영상 행, 열 길이
     int rows = sheetMusic.rows, cols = sheetMusic.cols;
-    uchar* pixelData;
 
-    // Get Staff Area
+    // 윤곽선 검출(findContours) 함수로 모든 객체를 찾음(저장은 contorus 벡터에)
     vector<vector<Point>> contours;
     findContours(sheetMusic, contours, RETR_LIST, CHAIN_APPROX_SIMPLE);
+
+    // 악보 영상을 3채널로 변환 후
     cvtColor(sheetMusic, sheetMusic, COLOR_GRAY2RGB);
+
+    // 악보 영상 행 길이의 70%보다 가로로 긴 contours들에 대해 빨간색 박스를 침
     for (int i = 0; i < contours.size(); i++) {
         Rect rect = boundingRect(contours[i]);
         if(rect.width >= cols * 0.7 && rect.width != cols) {
@@ -59,29 +61,12 @@ JNIEXPORT void JNICALL Java_com_example_practiceopencv_SheetFragment_preprocess2
         }
     }
 
-//    pixelData = sheetMusic.data;
-//    for (int y = 0; y < rows; y++) {
-//        for (int x = 0; x < cols; x++) {
-//            uchar rPixel = pixelData[y * cols * 3 + x * 3];
-//            uchar gPixel = pixelData[y * cols * 3 + x * 3 + 1];
-//            uchar bPixel = pixelData[y * cols * 3 + x * 3 + 2];
-//            if (rPixel < 30 && gPixel < 30 && bPixel < 30) {
-//                for (int i = 0; i < 3; i++) {
-//                    pixelData[y * cols * 3 + x * 3 + i] = 255;
-//                }
-//            }
-//            else if (rPixel > 220 && gPixel > 220 && bPixel > 220) {
-//                for (int i = 0; i < 3; i++) {
-//                    pixelData[y * cols * 3 + x * 3 + i] = 0;
-//                }
-//            }
-//        }
-//    }
-
-    // Clear Out of Staffs Area
-    pixelData = sheetMusic.data;
+    // 오선 영역 외 데이터 제거
+    uchar* pixelData = sheetMusic.data;
+    // 영상의 각 행을 탐색하며..
     for (int y = 0; y < rows; y++) {
         double histogram = 0;
+        // 빨간색이 포함되어 있는지 검사함
         for (int x = 0; x < cols; x++) {
             uchar rPixel = pixelData[y * cols * 3 + x * 3];
             uchar gPixel = pixelData[y * cols * 3 + x * 3 + 1];
@@ -93,6 +78,7 @@ JNIEXPORT void JNICALL Java_com_example_practiceopencv_SheetFragment_preprocess2
                 }
             }
         }
+        // 빨간색이 포함되어 있지 않은 행은 다 날려버림
         if (histogram == 0) {
             for (int x = 0; x < cols; x++) {
                 for (int i = 0; i < 3; i++) {
@@ -106,86 +92,92 @@ JNIEXPORT void JNICALL Java_com_example_practiceopencv_SheetFragment_preprocess2
 }
 
 // ============================================================================================
-// preprocess3 - Clear the Staff through the Vertical Histogram
+// 전처리 과정 3 - 수평 히스토그램을 사용해 오선을 제거함
 // ============================================================================================
 JNIEXPORT jintArray JNICALL Java_com_example_practiceopencv_SheetFragment_preprocess3(
         JNIEnv *env,
         jobject thiz,
         jlong sheetMusicAddr) {
 
-    // Create Variable LOGTAG
+    // 로그 태그 및 악보 영상 레퍼런스 변수 생성
     const char* LOGTAG = "preprocess3";
-
-    // Create Reference Variable Sheet Music
     Mat &sheetMusic = *(Mat *) sheetMusicAddr;
 
-    // Create Variable Sheet Music Data
+    // 악보 영상 행, 열 길이
     int rows = sheetMusic.rows, cols = sheetMusic.cols;
-    uchar* pixelData;
-    double histogram = 0;
 
-    // Grayscale & Thresholding
+    // 그레이스케일 및 이진화
     cvtColor(sheetMusic, sheetMusic, COLOR_RGB2GRAY);
-    threshold(sheetMusic, sheetMusic, 127, 255, THRESH_BINARY | THRESH_OTSU);
+    threshold(sheetMusic, sheetMusic, 127, 255, THRESH_BINARY_INV | THRESH_OTSU);
 
-    // Histogram & Get Information
-    pixelData = sheetMusic.data;
+    // 오선 좌표와 길이를 담을 벡터를 생성
     vector<int> staffsLocation;
     vector<int> staffsHeight;
+    uchar* pixelData = sheetMusic.data;
+    double histogram = 0;
+    // 영상의 각 행을 탐색하며..
     for (int y = 0; y < rows; y++) {
+        // 검은색 픽셀 개수만큼 변수를 증가시키고
         for (int x = 0; x < cols; x++) {
-            if (pixelData[y * cols + x] != 0) {
-                pixelData[y * cols + x] = 0;
+            if (pixelData[y * cols + x] != 255) {
                 histogram++;
-            } else {
-                pixelData[y * cols + x] = 255;
             }
         }
+        // 픽셀의 개수가 행 길이의 50% 이상이라면 오선으로 판단한다.
         if (histogram / cols > 0.5) {
+            // 벡터에 오선 좌표가 없다면..
             if (staffsLocation.size() == 0) {
                 staffsLocation.push_back(y);
                 staffsHeight.push_back(0);
-            } else if (abs(staffsLocation.back() - y) > 1) {
+            }
+            // 새로 발견된 오선 좌표가 이전 좌표와 1보다 크게 차이 나면 새로운 오선임
+            else if (abs(staffsLocation.back() - y) > 1) {
                 staffsLocation.push_back(y);
                 staffsHeight.push_back(0);
-            } else {
+            }
+            // 아니라면 같은 오선으로 오선 좌표와 오선 길이를 업데이트함
+            else {
                 staffsLocation[staffsLocation.size() - 1] = y;
                 staffsHeight[staffsHeight.size() - 1] += 1;
             }
+            // 오선을 확대해보면 1픽셀로만 이루어진 게 아니므로 좌표와 길이를 각각 유지
         }
         histogram = 0;
     }
 
-    // Clear The Staffs
+    // 오선 영역 제거
     const int SIZE = staffsLocation.size();
     pixelData = sheetMusic.data;
     for (int x = 0; x < cols; x++) {
         for (int i = 0; i < SIZE; i++) {
+            // 오선 최하단 좌표에서 오선 길이를 빼면 최상단 좌표가 나옴
             int topPixel = staffsLocation[i] - staffsHeight[i];
             int botPixel = staffsLocation[i];
+            // 최상단 좌표 위와 최하단 좌표 아래에 아무 픽셀이 없다면
             if (pixelData[(topPixel - 1) * cols + x] != 0 && pixelData[(botPixel + 1) * cols + x] != 0) {
+                // 해당 좌표의 픽셀은 지운다.
                 for (int j = 0; j < staffsHeight[i] + 1; j++) {
                     int removePixel = staffsLocation[i] - j;
                     pixelData[removePixel * cols + x] = 255;
                 }
+                // 위, 아래 좌표를 확인하지 않으면 음표나 쉼표 등의 객체들이 지워질 수 있으므로 픽셀을 확인 후 지움
             }
         }
     }
 
-    // Convert Vector to intArray for Return
+    // 오선의 좌표들을 리턴 해주기 위해 JintArray로 변환
     jintArray intArray = (*env).NewIntArray(SIZE);
     for (int i = 0; i < SIZE; i++) {
         jint element = staffsLocation[i];
         (*env).SetIntArrayRegion(intArray, i, 1, &element);
     }
 
-    // Return Staffs Location
     LOGI("Function End :: %s", LOGTAG);
     return intArray;
 }
 
 // ============================================================================================
-// preprocess4 - Multiply Sheet Music Image and Data by Weight
+// 전처리 과정 4 - 악보 영상에 가중치를 곱해줌(객체들이 항상 비슷한 크기를 갖게 하기 위함)
 // ============================================================================================
 JNIEXPORT jintArray JNICALL Java_com_example_practiceopencv_SheetFragment_preprocess4(
         JNIEnv *env,
@@ -193,26 +185,24 @@ JNIEXPORT jintArray JNICALL Java_com_example_practiceopencv_SheetFragment_prepro
         jlong sheetMusicAddr,
         jintArray staffsInfoArray) {
 
-    // Create Variable LOGTAG
-    const char* LOGTAG = "preprocess3";
-
-    // Create Reference Variable Sheet Music
+    // 로그 태그 및 악보 영상 레퍼런스 변수 생성
+    const char* LOGTAG = "preprocess4";
     Mat &sheetMusic = *(Mat *) sheetMusicAddr;
 
-    // Create Reference Variable(Average Distance)
+    // 해당 함수를 호출한 자바 클래스에서 avgDistance라는 변수를 참조함
     jclass cls = (*env).GetObjectClass(thiz);
     jfieldID fid = (*env).GetFieldID(cls, "avgDistance", "D");
 
-    // Get Staffs Info
+    // 전처리 과정 3에서 반환했던 오선 좌표 정보를 불러옴
     const int arrayLength = (*env).GetArrayLength(staffsInfoArray);
     jint staffsInfo[arrayLength];
     (*env).GetIntArrayRegion(staffsInfoArray, 0, arrayLength, staffsInfo);
 
-    // Create Variable Sheet Music Data
+    // 악보 영상 행, 열 길이
     int rows = sheetMusic.rows, cols = sheetMusic.cols;
-    double avgDistance = 0.00;
 
-    // Get a Average Distance Between Staffs
+    // 오선 좌표들 간의 거리를 모두 더한 후 나눠 평균을 구함
+    double avgDistance = 0.00;
     for (int i = 0; i < arrayLength / 5; i++) {
         for (int j = 0; j < 4; j++) {
             avgDistance += abs(staffsInfo[i * 5 + j] - staffsInfo[i * 5 + j + 1]);
@@ -220,7 +210,7 @@ JNIEXPORT jintArray JNICALL Java_com_example_practiceopencv_SheetFragment_prepro
     }
     avgDistance /= (arrayLength - arrayLength / 5);
 
-    // Multiply Sheet Music Image by Weight
+    // 가중치를 구해 영상에 곱해줌(오선 간격은 항상 20픽셀이 되도록)
     const double weightStd = 20.0;
     double weight = weightStd / avgDistance;
     double newWidth = sheetMusic.cols * weight;
@@ -230,7 +220,7 @@ JNIEXPORT jintArray JNICALL Java_com_example_practiceopencv_SheetFragment_prepro
     LOGI("%s :: Weighted width : %s, Weighted height : %s", LOGTAG, to_string(newWidth).data(), to_string(newHeight).data());
     resize(sheetMusic, sheetMusic, Size(newWidth, newHeight));
 
-    // Multiply Data by Weight
+    // 오선 평균 거리와 오선 좌표 정보도 업데이트해 줌
     LOGI("%s :: Original avgDistance : %s", LOGTAG, to_string(avgDistance).data());
     avgDistance *= weight;
     LOGI("%s :: Weighted avgDistance : %s", LOGTAG, to_string(avgDistance).data());
@@ -238,14 +228,13 @@ JNIEXPORT jintArray JNICALL Java_com_example_practiceopencv_SheetFragment_prepro
         staffsInfo[i] *= weight;
     }
 
-    // Convert Vector to intArray for Return
+    // 업데이트된 오선 정보를 리턴 해주기 위해 JintArray로 변환
     jintArray intArray = (*env).NewIntArray(arrayLength);
     for (int i = 0; i < arrayLength; i++) {
         jint element = staffsInfo[i];
         (*env).SetIntArrayRegion(intArray, i, 1, &element);
     }
 
-    // Return avgDistance & Staffs Location
     LOGI("Function End :: %s", LOGTAG);
     (*env).SetDoubleField(thiz, fid, avgDistance);
     return intArray;
@@ -761,94 +750,6 @@ JNIEXPORT jobjectArray JNICALL Java_com_example_practiceopencv_SheetFragment_pro
     LOGI("Function End :: %s", LOGTAG);
     (*env).SetIntField(thiz, key, keyTemp);
     return objArray;
-    /*
-    for (int i = 0; i < notesInfo.size(); i++) {
-        LOGI("%s :: i : %s, tailCnt : %s, headWay : %s", LOGTAG, to_string(i).data(), to_string(notesInfo[i].tailCnt).data(), to_string(notesInfo[i].headWay).data());
-        for (int j = 0; j < notesInfo[i].tailLoc.size(); j++) {
-            int x = floor(notesInfo[i].rect.x + notesInfo[i].rect.width * 0.3 + 0.5);
-            int y = floor(notesInfo[i].rect.y + notesInfo[i].rect.height + 60 + 0.5);
-            putText(sheetMusic, to_string(notesInfo[i].tailLoc.size()), Point(x, y), 2, weighted(1.5), Scalar(0, 0, 0));
-            LOGI("%s :: tailLoc : %s, tailWidth : %s", LOGTAG, to_string(notesInfo[i].tailLoc[j]).data(), to_string(notesInfo[i].tailWidth[j]).data());
-        }
-    }
-    */
-    /*
-    // Create Variable for Template Matching
-    const int SIZE = 4;
-    Mat notesImages[SIZE] = {
-            *(Mat *) note02cAddr,
-            *(Mat *) note04cAddr,
-            *(Mat *) note04dAddr,
-            *(Mat *) note08cAddr,
-    };
-    Mat matchResult[SIZE];
-    double maxValue[SIZE];
-    Point maxLoc[SIZE];
-    Mat notesResult[SIZE];
-
-    for (int i = 0; i < SIZE; i++) {
-        double weight = 20.0 / notesImages[i].rows;
-        double newWidth = notesImages[i].cols * weight;
-        double newHeight = notesImages[i].rows * weight;
-        logStr = to_string(weight);
-        LOGI("%s :: weight : %s", LOGTAG, logStr.data());
-        logStrX = to_string(notesImages[i].cols);
-        logStrY = to_string(notesImages[i].rows);
-        LOGI("%s :: Original width : %s, Original height : %s", LOGTAG, logStrX.data(), logStrY.data());
-        logStrX = to_string(newWidth);
-        logStrY = to_string(newHeight);
-        LOGI("%s :: Weighted width : %s, Weighted height : %s", LOGTAG, logStrX.data(), logStrY.data());
-        resize(notesImages[i], notesImages[i], Size(newWidth, newHeight));
-    }
-
-    // Template Image GrayScale & Binaryzation
-    for (int i = 0; i < SIZE; i++) {
-        cvtColor(notesImages[i], notesImages[i], COLOR_RGB2GRAY);
-        threshold(notesImages[i], notesImages[i], 127, 255, THRESH_BINARY | THRESH_OTSU);
-    }
-
-    // Save Location of Image with highest Similarity
-    for (int i = 0; i < SIZE; i++) {
-        matchResult[i] = Mat(sheetMusic.cols - notesImages[i].cols + 1, sheetMusic.rows - notesImages[i].rows + 1, CV_8U);
-        matchTemplate(sheetMusic, notesImages[i], matchResult[i], TM_CCOEFF_NORMED);
-        minMaxLoc(matchResult[i], NULL, &maxValue[i], NULL, &maxLoc[i]);
-        logStr = to_string(maxValue[i]);
-        LOGI("highest Similarity : %s", logStr.data());
-    }
-
-    // Create Custom Note Images
-    for (int i = 0; i < SIZE; i++) {
-        notesResult[i] = Mat(sheetMusic, Rect(maxLoc[i].x, maxLoc[i].y, notesImages[i].cols, notesImages[i].rows));
-    }
-
-    // Template Matching
-    for (int i = 0; i < SIZE; i++) {
-        matchResult[i] = Mat(sheetMusic.cols - notesResult[i].cols + 1, sheetMusic.rows - notesResult[i].rows + 1, CV_8U);
-        matchTemplate(sheetMusic, notesResult[i], matchResult[i], TM_CCOEFF_NORMED);
-        normalize(matchResult[i], matchResult[i], 0, 1, NORM_MINMAX);
-    }
-
-    cvtColor(sheetMusic, sheetMusic, COLOR_GRAY2RGB);
-    float value = 0;
-    for (int i = 0; i < SIZE; i++) {
-        for (int y = 0; y < matchResult[i].rows; y++) {
-            for (int x = 0; x < matchResult[i].cols; x++) {
-                value = matchResult[i].at<float>(y, x);
-                if (value > 0.9 && maxValue[i] != 0) {
-                    if (i == 0) {
-                        rectangle(sheetMusic, Point(x, y), Point(x + notesResult[i].cols - 1, y + notesResult[i].rows - 1), Scalar(255, 0, 0), 3);
-                    } else if (i == 1) {
-                        rectangle(sheetMusic, Point(x, y), Point(x + notesResult[i].cols - 1, y + notesResult[i].rows - 1), Scalar(255, 255, 0), 3);
-                    } else if (i == 2) {
-                        rectangle(sheetMusic, Point(x, y), Point(x + notesResult[i].cols - 1, y + notesResult[i].rows - 1), Scalar(0, 255, 0), 3);
-                    } else {
-                        rectangle(sheetMusic, Point(x, y), Point(x + notesResult[i].cols - 1, y + notesResult[i].rows - 1), Scalar(0, 0, 255), 3);
-                    }
-                }
-            }
-        }
-    }
-    */
 }
 
 // ============================================================================================
@@ -866,7 +767,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_example_practiceopencv_SheetFragment_pro
 // ============================================================================================
 // ============================================================================================
 // ============================================================================================
-// Dividing Line between Main Functions and Practice Functions
+// 아래로는 연습했던 코드
 // ============================================================================================
 // ============================================================================================
 // ============================================================================================
@@ -1721,7 +1622,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_example_practiceopencv_PracticeActivity_
 // ============================================================================================
 // ============================================================================================
 // ============================================================================================
-// Dividing Line between Practice Functions and Test Functions
+// 폐기된 코드
 // ============================================================================================
 // ============================================================================================
 // ============================================================================================
@@ -1738,9 +1639,6 @@ JNIEXPORT jobjectArray JNICALL Java_com_example_practiceopencv_PracticeActivity_
 // ============================================================================================
 // ============================================================================================
 
-// ============================================================================================
-// Practice
-// ============================================================================================
 JNIEXPORT void JNICALL Java_com_example_practiceopencv_TestActivity_convertRGBtoGray(
         JNIEnv *env,
         jobject thiz,
