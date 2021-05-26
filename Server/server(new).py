@@ -12,8 +12,7 @@ from pyknon.genmidi import Midi
 from pyknon.music import NoteSeq, Note, Rest
 from midi2audio import FluidSynth
 
-host = '192.168.219.102'
-# host = 'localhost'
+host = 'localhost'
 port = 3000
 lst = []
 

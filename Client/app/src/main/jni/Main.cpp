@@ -92,7 +92,7 @@ JNIEXPORT void JNICALL Java_com_example_practiceopencv_SheetFragment_preprocess2
 }
 
 // ============================================================================================
-// 전처리 과정 3 - 수평 히스토그램을 사용해 오선을 제거함
+// 전처리 과정 3 - 수평 히스토그램을 사용해 오선을 제거
 // ============================================================================================
 JNIEXPORT jintArray JNICALL Java_com_example_practiceopencv_SheetFragment_preprocess3(
         JNIEnv *env,
