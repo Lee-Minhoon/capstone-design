@@ -249,57 +249,63 @@ JNIEXPORT jobjectArray JNICALL Java_com_example_practiceopencv_SheetFragment_pro
         jlong sheetMusicAddr,
         jintArray staffsInfoArray) {
 
-    // Create Variable LOGTAG
+    // 로그 태그 및 악보 영상 레퍼런스 변수 생성
     const char* LOGTAG = "process";
-
-    // Create Reference Variable(Sheet Music)
     Mat &sheetMusic = *(Mat *) sheetMusicAddr;
 
-    // Create Reference Variable(Key) & Get Average Distance
+    // 해당 함수를 호출한 자바 클래스에서 key, avgDistance라는 변수를 참조함
     jclass cls = (*env).GetObjectClass(thiz);
     jfieldID key = (*env).GetFieldID(cls, "key", "I");
     jfieldID fid = (*env).GetFieldID(cls, "avgDistance", "D");
     jdouble avgDistance = (*env).GetDoubleField(thiz, fid);
 
-    // Get Staffs Info
+    // 오선의 정보를 불러옴
     const int arrayLength = (*env).GetArrayLength(staffsInfoArray);
     jint staffsInfo[arrayLength];
     (*env).GetIntArrayRegion(staffsInfoArray, 0, arrayLength, staffsInfo);
 
-    // Create Variable Sheet Music Data
+    // 악보 영상 행, 열 길이
     int rows = sheetMusic.rows, cols = sheetMusic.cols;
     int keyTemp = 0;
     uchar* pixelData = sheetMusic.data;
 
-    // Find Objects
+    // 악보 영상 내 모든 객체를 찾음
     vector<vector<Point>> contours;
     findContours(sheetMusic, contours, RETR_LIST, CHAIN_APPROX_NONE);
     vector<RectInfo> objectInfo;
     RectInfo rectInfo;
     for (int i = 0; i < contours.size(); i++) {
         Rect rect = boundingRect(contours[i]);
+        // j는 몇 번째 오선 영역인지를 나타냄
         for (int j = 0; j < arrayLength / 5; j++) {
+            // 객체의 중간 y 좌표
             double yCenter = (rect.y + rect.y + rect.height) / 2;
             double errorW = rect.width / cols;
             double errorH = rect.height / rows;
             double topPixel, botPixel;
+            // 객체의 가로, 세로 길이가 음표 조건에 맞는지 검사
             if ((rect.width >= weighted(20) && rect.height >= weighted(50)) || (rect.width >= weighted(20) && rect.height <= weighted(25) && rect.height >= weighted(15))) {
                 topPixel = staffsInfo[j * 5] - weighted(40);
                 botPixel = staffsInfo[(j + 1) * 5 - 1] + weighted(40);
-            } else {
+            }
+            // 아니라면 쉼표로 일단 판단
+            else {
                 topPixel = staffsInfo[j * 5] - weighted(10);
                 botPixel = staffsInfo[(j + 1) * 5 - 1] + weighted(10);
             }
+            // 오선 영역 안에 들어오고 일정 크기보다 작아야 음표, 쉼표로 판단
             if (rect.width >= weighted(3) && yCenter >=  topPixel && yCenter <= botPixel && errorW < 0.3 && errorH < 0.3) {
                 rectInfo = {j, rect};
                 objectInfo.push_back(rectInfo);
             }
         }
     }
+
+    // 정렬 조건은 몇 번째 오선 영역에 포함 돼 있는지, 이후 왼쪽에서 오른쪽으로
     sort(objectInfo.begin(), objectInfo.end(), cmp);
     LOGI("%s :: objectInfo.size : %s", LOGTAG, to_string(objectInfo.size()).data());
 
-    // Merge Adjacent Objects
+    // 분할된 객체들을 합침
     for (int i = 0; i < objectInfo.size(); i++) {
         for (int j = 0; j < objectInfo.size(); j++) {
             Rect r1 = objectInfo[i].rect;
@@ -315,7 +321,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_example_practiceopencv_SheetFragment_pro
         }
     }
 
-    // Deduplication
+    // 중복 제거
     vector<RectInfo> objectInfoEx;
     int overlap = 0;
     for (int i = 0; i < objectInfo.size(); i++) {
@@ -338,7 +344,12 @@ JNIEXPORT jobjectArray JNICALL Java_com_example_practiceopencv_SheetFragment_pro
     int SIZE = objectInfoEx.size();
     LOGI("%s :: objectInfoEx.size : %s", LOGTAG, to_string(SIZE).data());
 
-    // Get Information on Notes to Recognize Notes
+//    cvtColor(sheetMusic, sheetMusic, COLOR_GRAY2RGB);
+//    for(int i = 0; i < SIZE; i++) {
+//        rectangle(sheetMusic, objectInfoEx[i].rect, Scalar(255, 0, 0), 3);
+//    }
+
+    // 객체에서 얻을 수 있는 특징점들을 확보
     typedef struct _NoteInfo {
         int lineNumber;
         Rect rect;
@@ -402,7 +413,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_example_practiceopencv_SheetFragment_pro
     SIZE = notesInfo.size();
     LOGI("%s :: notesInfo.size : %s", LOGTAG, to_string(notesInfo.size()).data());
 
-    // Recognize Process
+    // 인식 프로세스
     vector<int> beats;
     vector<int> notes;
     pixelData = sheetMusic.data;
@@ -427,7 +438,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_example_practiceopencv_SheetFragment_pro
         int tailCnt = notesInfo[i].tailLoc.size();
         int value = 0;
 
-        // Recognize Key
+        // 키 인식
         int keyAreaTop[2] = {staffsLoc[0] - weighted(5), staffsLoc[0] + weighted(5)};
         int keyAreaBot[2] = {staffsLoc[4] - weighted(5), staffsLoc[4] + weighted(5)};
         int keyCenterTop = staffsLoc[2] - weighted(5);
@@ -502,11 +513,11 @@ JNIEXPORT jobjectArray JNICALL Java_com_example_practiceopencv_SheetFragment_pro
             }
         }
 
-        // Recognize Notes
+        // 음표 인식
         LOGI("%s :: i : %s, tailCnt : %s, headWay : %s", LOGTAG, to_string(i).data(), to_string(tailCnt).data(), to_string(headWay).data());
         if (value == 0 && width >= weighted(20) && height >= weighted(50)){
             for (int j = 0; j < tailCnt; j++) {
-                // Get the Position of a Note
+                // 음표의 위치 파악
                 int noteAreaTop, noteAreaBot;
                 if (headWay == 0) {
                     noteAreaTop = notesInfo[i].tailEnd[j] - weighted(20);
@@ -556,7 +567,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_example_practiceopencv_SheetFragment_pro
                     avg++;
                 }
                 if (avg >= 15) {
-                    // Get the Number of Wings
+                    // 꼬리 개수 파악
                     noteLoc = rInt(total / avg);
                     int wingAreaTop, wingAreaBot;
                     if (headWay == 0) {
@@ -574,7 +585,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_example_practiceopencv_SheetFragment_pro
                             wings++;
                         }
                     }
-                    // Find a Point
+                    // 점음표인지 탐색
                     int pointAreaTop = noteLoc - weighted(10);
                     int pointAreaBot = noteLoc + weighted(10);
                     int points = 0;
@@ -594,7 +605,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_example_practiceopencv_SheetFragment_pro
                             }
                         }
                     }
-                    // Separate Notes
+                    // 몇 분 음표인지 판단
                     int histogram = *max_element(histoVec.begin(), histoVec.end());
                     int histogramEx = *max_element(histoExVec.begin(), histoExVec.end());
                     int beat = 0;
@@ -624,7 +635,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_example_practiceopencv_SheetFragment_pro
             }
         }
 
-        // Recognize Rests
+        // 쉼표 인식
         int restAreaTop[2] = {staffsLoc[1], staffsLoc[1] + 10};
         int restAreaBot[2] = {staffsLoc[1] + 10, staffsLoc[2]};
         int restCenterTop = staffsLoc[1];
@@ -701,7 +712,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_example_practiceopencv_SheetFragment_pro
         LOGI("%s :: i : %s, width : %s, height : %s", LOGTAG, to_string(i).data(), to_string(notesInfo[i].rect.width).data(), to_string(notesInfo[i].rect.height).data());
     }
 
-    // Convert the Coordinates of Notes to Scale
+    // 음의 높낮이 파악
     int totalStaffs = arrayLength / 5;
     for (int i = 0; i < notes.size(); i++) {
         for (int j = 0; j < totalStaffs; j++) {
@@ -735,7 +746,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_example_practiceopencv_SheetFragment_pro
         LOGI("%s :: i : %s, notes : %s, beats : %s", LOGTAG, to_string(i).data(), to_string(notes[i]).data(), to_string(beats[i]).data());
     }
 
-    // Convert Vector to intArray for Return
+    // 음표에 대한 정보를 반환하기 위해 변환
     jclass intArrayCls = (*env).FindClass("[I");
     jintArray intArray = (*env).NewIntArray(2);
     jobjectArray objArray = (*env).NewObjectArray(notes.size(), intArrayCls, intArray);
@@ -746,7 +757,6 @@ JNIEXPORT jobjectArray JNICALL Java_com_example_practiceopencv_SheetFragment_pro
         (*env).SetObjectArrayElement(objArray, i, elementArray);
     }
 
-    // Return Notes and Beats
     LOGI("Function End :: %s", LOGTAG);
     (*env).SetIntField(thiz, key, keyTemp);
     return objArray;
