@@ -9,7 +9,6 @@ import tomita.legacy.pysynth_e as pe
 from src.MarkovMusic import MusicMatrix
 from random import *
 
-#host = '192.168.219.104'
 host = 'localhost'
 port = 3000
 lst = []
