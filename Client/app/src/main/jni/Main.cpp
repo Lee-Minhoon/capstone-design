@@ -623,14 +623,14 @@ JNIEXPORT jobjectArray JNICALL Java_com_example_practiceopencv_SheetFragment_pro
                     else if (histogramEx >= std && histoExVec.size() >= weighted(15) && wings >= weighted(17) && points >= pointStd) beat = -16;
                     else if (histoExVec.size() < weighted(15) && histogram >= weighted(10) && wings < weighted(5) && points < pointStd) beat = 2;
                     else if (histoExVec.size() < weighted(15) && histogram >= weighted(10) && wings < weighted(5) && points >= pointStd) beat = -2;
-                    if (beat != 0) {
-                        LOGI("%s :: i : %s, j : %s, histoExVecSize : %s, wings : %s, points : %s", LOGTAG, to_string(i).data(), to_string(j).data(), to_string(histoExVec.size()).data(), to_string(wings).data(), to_string(points).data());
-                        Point point = {notesInfo[i].tailLoc[j] - weighted(20), top - weighted(20)};
-                        putText(sheetMusic, to_string(beat), point, 2, weightedEx(1.5), Scalar(0, 0, 0));
-                        notes.push_back(noteLoc);
-                        beats.push_back(beat);
-                        value = 1;
-                    }
+                        if (beat != 0) {
+                            LOGI("%s :: i : %s, j : %s, histoExVecSize : %s, wings : %s, points : %s", LOGTAG, to_string(i).data(), to_string(j).data(), to_string(histoExVec.size()).data(), to_string(wings).data(), to_string(points).data());
+                            Point point = {notesInfo[i].tailLoc[j] - weighted(20), top - weighted(20)};
+                            putText(sheetMusic, to_string(beat), point, 2, weightedEx(1.5), Scalar(0, 0, 0));
+                            notes.push_back(noteLoc);
+                            beats.push_back(beat);
+                            value = 1;
+                        }
                 }
             }
         }
